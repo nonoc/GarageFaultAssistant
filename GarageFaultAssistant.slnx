@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="GarageFaultAssistant.Tests/GarageFaultAssistant.Tests.csproj" />
+  <Project Path="GarageFaultAssistant/GarageFaultAssistant.csproj" />
+</Solution>
