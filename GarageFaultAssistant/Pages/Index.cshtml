@@ -1,10 +1,103 @@
 ﻿@page
-@model IndexModel
+@model GarageFaultAssistant.Pages.IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Fault Assistant";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container py-4" style="max-width: 860px;">
+    <h1 class="mb-3">Garage Fault Assistant</h1>
+    <p class="text-muted mb-4">
+        Describe the vehicle fault in free text. The adviser will see a structured summary,
+        suggested inspection areas and follow-up questions. This is not a diagnosis.
+    </p>
+
+    <form method="post" class="card card-body mb-4">
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label">Customer description</label>
+            <textarea asp-for="Description" class="form-control" rows="4" placeholder="e.g. grinding noise when braking and the pedal feels soft..."></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">Analyse</button>
+    </form>
+
+    @if (Model.Result is not null)
+    {
+        <div class="card mb-3">
+            <div class="card-header fw-semibold">Structured summary</div>
+            <div class="card-body">
+                <p>@Model.Result.Summary</p>
+                <hr />
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Symptoms</h6>
+                        <ul class="mb-0">
+                            @foreach (var s in Model.Result.Symptoms)
+                            {
+                                <li>@s</li>
+                            }
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Areas to inspect (not a diagnosis)</h6>
+                        <ul class="mb-0">
+                            @foreach (var p in Model.Result.PossibleSystems)
+                            {
+                                <li>@p</li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-1">
+                    <div class="col-md-4">
+                        <h6 class="text-muted">Severity</h6>
+                        <span class="badge bg-secondary">@Model.Result.Severity</span>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="text-muted">Urgency</h6>
+                        <span class="badge bg-secondary">@Model.Result.Urgency</span>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="text-muted">Vehicle context</h6>
+                        <p class="mb-0">@(Model.Result.VehicleContext ?? "Not provided")</p>
+                    </div>
+                </div>
+
+                @if (Model.Result.SuggestedQuestions.Any())
+                {
+                    <div class="mt-3">
+                        <h6 class="text-muted">Suggested questions for the adviser</h6>
+                        <ul class="mb-0">
+                            @foreach (var q in Model.Result.SuggestedQuestions)
+                            {
+                                <li>@q</li>
+                            }
+                        </ul>
+                    </div>
+                }
+
+                @if (Model.Result.NotProvided.Any())
+                {
+                    <div class="mt-3">
+                        <h6 class="text-muted">Key information not provided</h6>
+                        <ul class="mb-0">
+                            @foreach (var n in Model.Result.NotProvided)
+                            {
+                                <li>@n</li>
+                            }
+                        </ul>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="alert alert-warning">
+            @Model.Result.Disclaimer
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
 </div>
